@@ -13,6 +13,8 @@ class Data extends StatefulWidget {
 }
 
 class _DataState extends State<Data> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   late String copyLink = '';
 
   List<String> imgValues = [
@@ -81,6 +83,7 @@ class _DataState extends State<Data> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
+        key: _scaffoldKey,
         backgroundColor: Colors.white,
         appBar: AppBar(
           leading: BackButton(
@@ -100,18 +103,7 @@ class _DataState extends State<Data> {
             ),
           ),
           actions: [
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                child: IconButton(
-                  alignment: Alignment.topRight,
-                  icon: const Icon(Icons.info_outline_rounded),
-                  splashRadius: 12.0,
-                  color: Colors.redAccent,
-                  onPressed: () {},
-                ),
-              ),
-            ),
+            Container(),
           ],
         ),
         body: SingleChildScrollView(
@@ -163,7 +155,15 @@ class _DataState extends State<Data> {
                                       ),
                                       IconButton(
                                         splashRadius: 12.0,
-                                        onPressed: () {},
+                                        onPressed: () async {            //Search again
+                                          await Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) => Data(
+                                                    field01Controller.text,
+                                                    widget.searchType,
+                                                  )));
+                                        },
                                         icon: const Icon(
                                           Icons.search_sharp,
                                           color: Colors.redAccent,

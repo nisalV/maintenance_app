@@ -97,34 +97,7 @@ class _HomeScreen extends State<Home> {
                     color: Colors.redAccent,
                   ),
                 )
-              : Row(
-                  children: [
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.menu),
-                          splashRadius: 12.0,
-                          color: Colors.redAccent,
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 0, horizontal: 10),
-                        child: IconButton(
-                          alignment: Alignment.topRight,
-                          onPressed: () {},
-                          icon: const Icon(Icons.info_outline_rounded),
-                          splashRadius: 12.0,
-                          color: Colors.redAccent,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              : Container(),
         ],
       ),
       body: SingleChildScrollView(
