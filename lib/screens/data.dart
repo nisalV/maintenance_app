@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class Data extends StatefulWidget {
   final String searchType;
@@ -12,8 +13,25 @@ class Data extends StatefulWidget {
 }
 
 class _DataState extends State<Data> {
+  late String copyLink = '';
 
-  List<String> imgValues = ['assets/1.jpg','assets/2.jpg','assets/3.jpg','assets/4.jpg',];
+  List<String> imgValues = [
+    'assets/1.jpg',
+    'assets/2.jpg',
+    'assets/3.jpg',
+    'assets/4.jpg'
+  ];
+
+  List<String> pdfValues = ['df434.pdf', 'fr43d.pdf', 'core.pdf', '4556D4.pdf','df434.pdf', 'fr43d.pdf', 'core.pdf', '4556D4.pdf','df434.pdf', 'fr43d.pdf', 'core.pdf', '4556D4.pdf'];
+
+  List<String> videoValues = ['12345.mp4','12345.mp4','12345.mp4','12345.mp4','12345.mp4','12345.mp4'];
+
+  List<String> linkValues = [
+    'www.google.com',
+    'www.yahoo.com',
+    'www.bing.com',
+    'www.microsoft.com'
+  ];
 
   final field01Controller = TextEditingController();
   final field02Controller = TextEditingController();
@@ -53,8 +71,9 @@ class _DataState extends State<Data> {
 
   @override
   Widget build(BuildContext context) {
-
-    width = MediaQuery.of(context).size.width;   // getting width,height (safe area) of the screen
+    width = MediaQuery.of(context)
+        .size
+        .width; // getting width,height (safe area) of the screen
     height = MediaQuery.of(context).size.height;
     pad = MediaQuery.of(context).padding;
     newHeight = height - pad.top - pad.bottom;
@@ -110,8 +129,8 @@ class _DataState extends State<Data> {
                       decoration: InputDecoration(
                           border: const OutlineInputBorder(),
                           focusedBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Colors.redAccent, width: 2.0),
+                            borderSide:
+                                BorderSide(color: Colors.redAccent, width: 2.0),
                           ),
                           labelText: widget.searchType,
                           labelStyle: const TextStyle(
@@ -177,7 +196,7 @@ class _DataState extends State<Data> {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                widget.searchData,
+                                widget.searchData, //Searched title
                                 style: const TextStyle(
                                   fontSize: 18.0,
                                   fontStyle: FontStyle.italic,
@@ -189,14 +208,13 @@ class _DataState extends State<Data> {
                             const SizedBox(
                               height: 15.0,
                             ),
-
-                            //Description
                             const Align(
                               alignment: Alignment.centerLeft,
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
                                     vertical: 0, horizontal: 5),
                                 child: Text(
+                                  //Description
                                   "Today's engines contain sensors to tell the vehicle's computer what's going on. Car sensors check for fuel-air mixture, incoming air temperature, wheel speed, and manifold pressure. They then tell your vehicle's computer what to do, based on that information.",
                                   style: TextStyle(
                                     fontSize: 18.0,
@@ -216,8 +234,7 @@ class _DataState extends State<Data> {
                     ),
                   ],
                 ),
-                const TabBar(indicatorColor: Colors.redAccent,
-                tabs: [
+                const TabBar(indicatorColor: Colors.redAccent, tabs: [
                   Tab(
                     icon: Icon(Icons.image_rounded, color: Colors.redAccent),
                   ),
@@ -236,23 +253,137 @@ class _DataState extends State<Data> {
                 SizedBox(
                   height: newHeight - 100,
                   child: TabBarView(children: [
-                    Text("y.toString()"),
-                    Text("ffghh"),
-                    Text("data"),
-                    GridView.builder(
+                    //Image Viewer
+                    PhotoViewGallery.builder(
+                      scrollDirection: Axis.vertical,
+                      scrollPhysics: const BouncingScrollPhysics(),
+                      builder: (BuildContext context, int index) {
+                        return PhotoViewGalleryPageOptions(
+                          imageProvider:
+                              AssetImage(imgValues[index]), //Image at 'index'
+                          initialScale: PhotoViewComputedScale.covered,
+                          basePosition: Alignment.center,
+                          minScale: PhotoViewComputedScale.covered,
+                        );
+                      },
+                      backgroundDecoration:
+                          BoxDecoration(color: Colors.redAccent[100]),
                       itemCount: imgValues.length,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2),
-                      itemBuilder: (BuildContext context, int index) {
-                        return Card(
-                          elevation: 2.0,
-                          child: Center(
-                            child: Image.asset(imgValues[index]),
+                      loadingBuilder: (context, event) => const Align(
+                        alignment: Alignment.topCenter,
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: SizedBox(
+                            width: 20.0,
+                            height: 20.0,
+                            child: CircularProgressIndicator(
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                        ),
+                      ),
+                      pageController: PageController(),
+                    ),
+                    ListView.builder(
+                      itemCount: pdfValues.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.picture_as_pdf,
+                                color: Colors.red,
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              Text(
+                                pdfValues[index],
+                                style: const TextStyle(color: Colors.redAccent),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.download_rounded,
+                                  color: Colors.redAccent,
+                                ),
+                                onPressed: () {}, //Download video
+                              )
+                            ],
                           ),
                         );
                       },
-
-                    )
+                    ),
+                    ListView.builder(
+                      itemCount: videoValues.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.video_library_rounded,
+                                color: Colors.red,
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              Text(
+                                videoValues[index],
+                                style: const TextStyle(color: Colors.redAccent),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.download_rounded,
+                                  color: Colors.redAccent,
+                                ),
+                                onPressed: () {}, //Download video
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    ListView.builder(
+                      itemCount: linkValues.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.insert_link_rounded,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(
+                                  width: 8,
+                                ),
+                                Text(
+                                  linkValues[index],
+                                  style: const TextStyle(color: Colors.redAccent),
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.copy,
+                                    color: Colors.redAccent,
+                                  ),
+                                  onPressed: () {
+                                    copyLink = linkValues[index];
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                      content: Text("Link copied"),
+                                    ));//Copy link
+                                  }, //Download video
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ]),
                 )
               ],
