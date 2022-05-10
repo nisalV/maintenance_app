@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:maintenance_app/screens/home.dart';
+import 'package:maintenance_app/screens/splashScreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +26,6 @@ class Wrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Home();
+    return const SplashScreen();
   }
 }
