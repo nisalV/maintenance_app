@@ -1,9 +1,15 @@
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:flutter/services.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,29 +30,15 @@ class Information extends StatefulWidget {
 
 class _InformationState extends State<Information> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
-  late String copyLink = '';
 
-  List<String> pdfValues = [
-    'df434.pdf',
-    'fr43d.pdf',
-    'core.pdf',
-    '4556D4.pdf',
-    'df434.pdf',
-    'fr43d.pdf',
-    'core.pdf',
-    '4556D4.pdf',
-    'df434.pdf',
-    'fr43d.pdf',
-    'core.pdf',
-    '4556D4.pdf'
-  ];
+  late String copyLink = '';
 
   late double width;
   late double height;
   var pad;
   late double newHeight;
   late bool hasData = false;
+  late bool pdfExist = false;
 
   var resDescription;
   List<String> resLinks = [];
@@ -58,8 +50,22 @@ class _InformationState extends State<Information> {
 
   Map? res;
 
+  ReceivePort receivePort = ReceivePort();
+  int progress = 0;
+  int position = 0;
+
   @override
   void initState() {
+    IsolateNameServer.registerPortWithName(receivePort.sendPort, 'Downloading');
+
+    receivePort.listen((message) {
+      setState(() {
+        progress = message;
+      });
+    });
+
+    FlutterDownloader.registerCallback(downloadCallback);
+
     getData().whenComplete(() {
       setState(() {
         resDescription;
@@ -71,6 +77,11 @@ class _InformationState extends State<Information> {
       });
     });
     super.initState();
+  }
+
+  static downloadCallback(id, status, progress) {
+    SendPort? sendPort = IsolateNameServer.lookupPortByName("Downloading");
+    sendPort?.send(progress);
   }
 
   Future getData() async {
@@ -113,6 +124,21 @@ class _InformationState extends State<Information> {
     }
   }
 
+  void _downloadFile(linkPDF, fileName) async {
+    final status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      String baseStorage = (await getExternalStorageDirectory())!.path;
+      String savePath = '$baseStorage/$fileName';
+      if (await File(savePath).exists()) {
+        OpenFile.open(savePath);
+      } else {
+        final id = await FlutterDownloader.enqueue(
+            url: linkPDF, savedDir: baseStorage.toString(), fileName: fileName);
+      }
+    } else {}
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -138,7 +164,9 @@ class _InformationState extends State<Information> {
               appBar: AppBar(
                 leading: BackButton(
                   color: Colors.redAccent,
-                  onPressed: () {
+                  onPressed: () async {
+                    var appDir = (await getExternalStorageDirectory())?.path;
+                    Directory(appDir!).delete(recursive: true);
                     Navigator.pop(context);
                   },
                 ),
@@ -292,25 +320,25 @@ class _InformationState extends State<Information> {
                                     const Spacer(),
                                     IconButton(
                                       icon: const Icon(
-                                        Icons.download_rounded,
+                                        Icons.file_download,
                                         color: Colors.redAccent,
                                       ),
-                                      onPressed: () async {
+                                      onPressed: () {
                                         try {
-                                          /////////////
-
-                                          //PDF download
-
-                                          ////////////////////
-
+                                          _downloadFile(
+                                              resPdfLink[index], resPdf[index]);
+                                          setState(() {
+                                            position = index;
+                                          }); //Downloading
 
                                         } on FirebaseException catch (e) {
-                                          print(e);
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
                                             content: Text(
                                               "Unable to download ${resPdf[index]}",
-                                              textAlign: TextAlign.center,style: const TextStyle(color: Colors.red),
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                  color: Colors.red),
                                             ),
                                           ));
                                         }
@@ -327,7 +355,7 @@ class _InformationState extends State<Information> {
                               return GestureDetector(
                                 child: Padding(
                                   padding:
-                                  const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                                      const EdgeInsets.fromLTRB(8, 0, 8, 8),
                                   child: Row(
                                     children: [
                                       const Icon(
@@ -353,7 +381,8 @@ class _InformationState extends State<Information> {
                                               ));
                                             },
                                             onTap: () async {
-                                              Uri url = resVidLinks[index] as Uri;
+                                              Uri url =
+                                                  resVidLinks[index] as Uri;
                                               if (await canLaunchUrl(url)) {
                                                 await launchUrl(url);
                                               } else {

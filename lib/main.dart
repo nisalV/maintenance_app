@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:maintenance_app/screens/splashScreen.dart';
 
 void main() async {
@@ -17,6 +18,8 @@ void main() async {
       storageBucket: "myapp-965420.appspot.com",
     ): null,
   );
+
+  await FlutterDownloader.initialize();
 
   runApp(const MyApp());
 }
