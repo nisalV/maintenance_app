@@ -1,72 +1,121 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
-class Data extends StatefulWidget {
+class Information extends StatefulWidget {
   final String searchType;
   final String searchData;
+  final String typeFirebase;
 
-  const Data(this.searchData, this.searchType, {Key? key}) : super(key: key);
+  const Information(this.searchData, this.searchType, this.typeFirebase,
+      {Key? key})
+      : super(key: key);
 
   @override
-  _DataState createState() => _DataState();
+  _InformationState createState() => _InformationState();
 }
 
-class _DataState extends State<Data> {
+class _InformationState extends State<Information> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
+  final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
   late String copyLink = '';
 
-  List<String> imgValues = [
-    'assets/1.jpg',
-    'assets/2.jpg',
-    'assets/3.jpg',
-    'assets/4.jpg'
+  List<String> pdfValues = [
+    'df434.pdf',
+    'fr43d.pdf',
+    'core.pdf',
+    '4556D4.pdf',
+    'df434.pdf',
+    'fr43d.pdf',
+    'core.pdf',
+    '4556D4.pdf',
+    'df434.pdf',
+    'fr43d.pdf',
+    'core.pdf',
+    '4556D4.pdf'
   ];
-
-  List<String> pdfValues = ['df434.pdf', 'fr43d.pdf', 'core.pdf', '4556D4.pdf','df434.pdf', 'fr43d.pdf', 'core.pdf', '4556D4.pdf','df434.pdf', 'fr43d.pdf', 'core.pdf', '4556D4.pdf'];
-
-  List<String> videoValues = ['12345.mp4','12345.mp4','12345.mp4','12345.mp4','12345.mp4','12345.mp4'];
-
-  List<String> linkValues = [
-    'www.google.com',
-    'www.yahoo.com',
-    'www.bing.com',
-    'www.microsoft.com'
-  ];
-
-  final field01Controller = TextEditingController();
-  final field02Controller = TextEditingController();
 
   late double width;
   late double height;
   var pad;
   late double newHeight;
+  late bool hasData = false;
 
-  late bool field01Tap = false;
-  late bool field02Tap = false;
+  var resDescription;
+  List<String> resLinks = [];
+  List<String> resVidLinks = [];
+  List<String> resImages = [];
+  List<String> resImgLink = [];
+  List<String> resPdf = [];
+  List<String> resPdfLink = [];
+
+  Map? res;
 
   @override
   void initState() {
+    getData().whenComplete(() {
+      setState(() {
+        resDescription;
+        resImgLink;
+        resVidLinks;
+        resImages;
+        resLinks;
+        hasData;
+      });
+    });
     super.initState();
-    field01Controller.addListener(() => setState(() {}));
-    field02Controller.addListener(() => setState(() {}));
+  }
+
+  Future getData() async {
+    var collection = FirebaseFirestore.instance.collection(widget.typeFirebase);
+    var docSnapshot = await collection.doc(widget.searchData).get();
+    if (docSnapshot.exists) {
+      Map<String, dynamic>? data = docSnapshot.data();
+      resDescription = data!['description'];
+      try {
+        resLinks = List.from(data['links']);
+        resImages = List.from(data['images']);
+        resPdf = List.from(data['pdf']);
+        resVidLinks = List.from(data['videos']);
+      } catch (e) {}
+      hasData = true;
+    } else {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text(
+          "Can not find a result",
+          style: TextStyle(color: Colors.red),
+          textAlign: TextAlign.center,
+        ),
+      ));
+    }
+
+    for (var element in resImages) {
+      Reference ref = FirebaseStorage.instance
+          .ref()
+          .child("${widget.typeFirebase}/${widget.searchData}/images/$element");
+      String link = await ref.getDownloadURL();
+      resImgLink.add(link);
+    }
+    for (var element in resPdf) {
+      Reference ref = FirebaseStorage.instance
+          .ref()
+          .child("${widget.typeFirebase}/${widget.searchData}/pdf/$element");
+      String link = await ref.getDownloadURL();
+      resPdfLink.add(link);
+    }
   }
 
   @override
   void didChangeDependencies() {
-    field01Controller.text;
-    field02Controller.text;
-    field01Tap;
-    field02Tap;
     super.didChangeDependencies();
-  }
-
-  void refresh() {
-    setState(() {
-      field01Tap = false;
-      field02Tap = false;
-    });
   }
 
   ///////
@@ -82,315 +131,322 @@ class _DataState extends State<Data> {
 
     return DefaultTabController(
       length: 4,
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          leading: BackButton(
-            color: Colors.redAccent,
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          backgroundColor: Colors.white,
-          elevation: 0.0,
-          title: Text(
-            widget.searchType,
-            style: const TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.w900,
-              color: Colors.redAccent,
-            ),
-          ),
-          actions: [
-            Container(),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            child: Column(
-              children: [
-                Column(
-                  children: [
-                    TextFormField(
-                      autofocus: field01Tap ? true : false,
-                      controller: field01Controller,
-                      maxLines: 1,
-                      enableSuggestions: true,
-                      decoration: InputDecoration(
-                          border: const OutlineInputBorder(),
-                          focusedBorder: const OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.redAccent, width: 2.0),
+      child: hasData
+          ? Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: Colors.white,
+              appBar: AppBar(
+                leading: BackButton(
+                  color: Colors.redAccent,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                backgroundColor: Colors.white,
+                elevation: 0.0,
+                title: Text(
+                  widget.searchType,
+                  style: const TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.redAccent,
+                  ),
+                ),
+                actions: [
+                  Container(),
+                ],
+              ),
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Column(
+                    children: [
+                      Column(
+                        children: [
+                          const SizedBox(
+                            height: 10.0,
                           ),
-                          labelText: widget.searchType,
-                          labelStyle: const TextStyle(
-                            fontSize: 15.0,
-                            color: Colors.redAccent,
-                          ),
-                          prefixIcon: const Icon(
-                            Icons.warning_amber_rounded,
-                            color: Colors.redAccent,
-                          ),
-                          suffixIcon: field01Controller.text.isEmpty
-                              ? Container(
-                                  width: 0,
-                                )
-                              : SizedBox(
-                                  width: 100,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      IconButton(
-                                        splashRadius: 12.0,
-                                        onPressed: () {
-                                          field01Controller.clear();
-                                          FocusScope.of(context).unfocus();
-                                        },
-                                        icon: const Icon(
-                                          Icons.close,
-                                          color: Colors.redAccent,
+
+                          // Description
+
+                          Card(
+                            elevation: 0.0,
+                            color: const Color(0xFA168FFC),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      widget.searchData, //Searched title
+                                      style: const TextStyle(
+                                        fontSize: 18.0,
+                                        fontStyle: FontStyle.italic,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 15.0,
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 0, horizontal: 5),
+                                      child: Text(
+                                        //Description
+                                        resDescription.toString(),
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.white,
                                         ),
                                       ),
-                                      IconButton(
-                                        splashRadius: 12.0,
-                                        onPressed: () async {            //Search again
-                                          await Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => Data(
-                                                    field01Controller.text,
-                                                    widget.searchType,
-                                                  )));
-                                        },
-                                        icon: const Icon(
-                                          Icons.search_sharp,
-                                          color: Colors.redAccent,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          //Search text
+
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                        ],
+                      ),
+                      const TabBar(indicatorColor: Colors.redAccent, tabs: [
+                        Tab(
+                          icon: Icon(Icons.image_rounded,
+                              color: Colors.redAccent),
+                        ),
+                        Tab(
+                          icon: Icon(Icons.picture_as_pdf_rounded,
+                              color: Colors.redAccent),
+                        ),
+                        Tab(
+                          icon: Icon(Icons.video_library_rounded,
+                              color: Colors.redAccent),
+                        ),
+                        Tab(
+                          icon:
+                              Icon(Icons.link_rounded, color: Colors.redAccent),
+                        ),
+                      ]),
+                      SizedBox(
+                        height: newHeight - 100,
+                        child: TabBarView(children: [
+                          //Image Viewer
+                          PhotoViewGallery.builder(
+                            scrollDirection: Axis.vertical,
+                            scrollPhysics: const BouncingScrollPhysics(),
+                            builder: (BuildContext context, int index) {
+                              return PhotoViewGalleryPageOptions(
+                                imageProvider: CachedNetworkImageProvider(
+                                    resImgLink[index]), //Image at 'index'
+                                initialScale: PhotoViewComputedScale.covered,
+                                basePosition: Alignment.center,
+                                minScale: PhotoViewComputedScale.covered,
+                              );
+                            },
+                            backgroundDecoration:
+                                BoxDecoration(color: Colors.redAccent[100]),
+                            itemCount: resImgLink.length,
+                            loadingBuilder: (context, event) => const Align(
+                              alignment: Alignment.topCenter,
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: SizedBox(
+                                  width: 20.0,
+                                  height: 20.0,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.redAccent,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            pageController: PageController(),
+                          ),
+                          ListView.builder(
+                            itemCount: resPdf.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.picture_as_pdf,
+                                      color: Colors.red,
+                                    ),
+                                    const SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      resPdf[index],
+                                      style: const TextStyle(
+                                          color: Colors.redAccent),
+                                    ),
+                                    const Spacer(),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.download_rounded,
+                                        color: Colors.redAccent,
+                                      ),
+                                      onPressed: () async {
+                                        try {
+
+
+                                        } on FirebaseException catch (e) {
+                                          print(e);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(
+                                              "Unable to download ${resPdf[index]}",
+                                              textAlign: TextAlign.center,style: const TextStyle(color: Colors.red),
+                                            ),
+                                          ));
+                                        }
+                                      }, //Download video
+                                    )
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                          ListView.builder(
+                            itemCount: resVidLinks.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                child: Padding(
+                                  padding:
+                                  const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.insert_link_rounded,
+                                        color: Colors.red,
+                                      ),
+                                      const SizedBox(
+                                        width: 15,
+                                      ),
+                                      Flexible(
+                                        child: SizedBox(
+                                          width: width - 100,
+                                          child: GestureDetector(
+                                            onLongPress: () {
+                                              Clipboard.setData(ClipboardData(
+                                                  text: resVidLinks[index]));
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(const SnackBar(
+                                                content: Text(
+                                                  "Link copied",
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ));
+                                            },
+                                            onTap: () async {
+                                              Uri url = resVidLinks[index] as Uri;
+                                              if (await canLaunchUrl(url)) {
+                                                await launchUrl(url);
+                                              } else {
+                                                throw '';
+                                              }
+                                            },
+                                            child: Text(
+                                              resVidLinks[index],
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: const TextStyle(
+                                                  color: Colors.blue,
+                                                  fontStyle: FontStyle.italic),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
-                                )),
-                      keyboardType: TextInputType.text,
-                      textInputAction: TextInputAction.done,
-                      onTap: () {
-                        setState(() {
-                          field01Tap = true;
-                        });
-                      },
-                    ),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-
-                    // Description
-
-                    Card(
-                      elevation: 0.0,
-                      color: const Color(0xFA168FFC),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                widget.searchData, //Searched title
-                                style: const TextStyle(
-                                  fontSize: 18.0,
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
                                 ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 15.0,
-                            ),
-                            const Align(
-                              alignment: Alignment.centerLeft,
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 0, horizontal: 5),
-                                child: Text(
-                                  //Description
-                                  "Today's engines contain sensors to tell the vehicle's computer what's going on. Car sensors check for fuel-air mixture, incoming air temperature, wheel speed, and manifold pressure. They then tell your vehicle's computer what to do, based on that information.",
-                                  style: TextStyle(
-                                    fontSize: 18.0,
-                                    color: Colors.white,
+                              );
+                            },
+                          ),
+                          ListView.builder(
+                            itemCount: resLinks.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.insert_link_rounded,
+                                        color: Colors.red,
+                                      ),
+                                      const SizedBox(
+                                        width: 15,
+                                      ),
+                                      Flexible(
+                                        child: SizedBox(
+                                          width: width - 100,
+                                          child: GestureDetector(
+                                            onLongPress: () {
+                                              Clipboard.setData(ClipboardData(
+                                                  text: resLinks[index]));
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(const SnackBar(
+                                                content: Text(
+                                                  "Link copied",
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ));
+                                            },
+                                            onTap: () async {
+                                              Uri url = resLinks[index] as Uri;
+                                              if (await canLaunchUrl(url)) {
+                                                await launchUrl(url);
+                                              } else {
+                                                throw '';
+                                              }
+                                            },
+                                            child: Text(
+                                              resLinks[index],
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: const TextStyle(
+                                                  color: Colors.blue,
+                                                  fontStyle: FontStyle.italic),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    //Search text
-
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                  ],
+                              );
+                            },
+                          ),
+                        ]),
+                      )
+                    ],
+                  ),
                 ),
-                const TabBar(indicatorColor: Colors.redAccent, tabs: [
-                  Tab(
-                    icon: Icon(Icons.image_rounded, color: Colors.redAccent),
+              ),
+            )
+          : const Scaffold(
+              backgroundColor: Colors.white,
+              body: Center(
+                child: SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: CircularProgressIndicator(
+                    color: Colors.redAccent,
                   ),
-                  Tab(
-                    icon: Icon(Icons.picture_as_pdf_rounded,
-                        color: Colors.redAccent),
-                  ),
-                  Tab(
-                    icon: Icon(Icons.video_library_rounded,
-                        color: Colors.redAccent),
-                  ),
-                  Tab(
-                    icon: Icon(Icons.link_rounded, color: Colors.redAccent),
-                  ),
-                ]),
-                SizedBox(
-                  height: newHeight - 100,
-                  child: TabBarView(children: [
-                    //Image Viewer
-                    PhotoViewGallery.builder(
-                      scrollDirection: Axis.vertical,
-                      scrollPhysics: const BouncingScrollPhysics(),
-                      builder: (BuildContext context, int index) {
-                        return PhotoViewGalleryPageOptions(
-                          imageProvider:
-                              AssetImage(imgValues[index]), //Image at 'index'
-                          initialScale: PhotoViewComputedScale.covered,
-                          basePosition: Alignment.center,
-                          minScale: PhotoViewComputedScale.covered,
-                        );
-                      },
-                      backgroundDecoration:
-                          BoxDecoration(color: Colors.redAccent[100]),
-                      itemCount: imgValues.length,
-                      loadingBuilder: (context, event) => const Align(
-                        alignment: Alignment.topCenter,
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: SizedBox(
-                            width: 20.0,
-                            height: 20.0,
-                            child: CircularProgressIndicator(
-                              color: Colors.redAccent,
-                            ),
-                          ),
-                        ),
-                      ),
-                      pageController: PageController(),
-                    ),
-                    ListView.builder(
-                      itemCount: pdfValues.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.picture_as_pdf,
-                                color: Colors.red,
-                              ),
-                              const SizedBox(
-                                width: 8,
-                              ),
-                              Text(
-                                pdfValues[index],
-                                style: const TextStyle(color: Colors.redAccent),
-                              ),
-                              const Spacer(),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.download_rounded,
-                                  color: Colors.redAccent,
-                                ),
-                                onPressed: () {}, //Download video
-                              )
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                    ListView.builder(
-                      itemCount: videoValues.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.video_library_rounded,
-                                color: Colors.red,
-                              ),
-                              const SizedBox(
-                                width: 8,
-                              ),
-                              Text(
-                                videoValues[index],
-                                style: const TextStyle(color: Colors.redAccent),
-                              ),
-                              const Spacer(),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.download_rounded,
-                                  color: Colors.redAccent,
-                                ),
-                                onPressed: () {}, //Download video
-                              )
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                    ListView.builder(
-                      itemCount: linkValues.length,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.insert_link_rounded,
-                                  color: Colors.red,
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                Text(
-                                  linkValues[index],
-                                  style: const TextStyle(color: Colors.redAccent),
-                                ),
-                                const Spacer(),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.copy,
-                                    color: Colors.redAccent,
-                                  ),
-                                  onPressed: () {
-                                    copyLink = linkValues[index];
-                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                      content: Text("Link copied"),
-                                    ));//Copy link
-                                  }, //Download video
-                                )
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ]),
-                )
-              ],
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

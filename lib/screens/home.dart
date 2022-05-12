@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'data.dart';
 
@@ -24,15 +25,31 @@ class _HomeScreen extends State<Home> {
 
   late bool back = false;
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   void initState() {
     super.initState();
+    signInAnon();
 
     form01Controller.addListener(() => setState(() {}));
     form02Controller.addListener(() => setState(() {}));
     form03Controller.addListener(() => setState(() {}));
     form04Controller.addListener(() => setState(() {}));
     form05Controller.addListener(() => setState(() {}));
+  }
+
+  Future signInAnon() async {
+    try {
+      UserCredential result = await _auth.signInAnonymously();
+      User? user = result.user;
+      return user;
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Can not connect to the Database!", style: TextStyle(color: Colors.red),textAlign: TextAlign.center,),
+      ));
+      return null;
+    }
   }
 
   @override
@@ -165,9 +182,9 @@ class _HomeScreen extends State<Home> {
                                             await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) => Data(
+                                                    builder: (context) => Information(
                                                           form01Controller.text,
-                                                          "Fault code",
+                                                          "Fault code", "Fault Code"
                                                         )));
                                             clearField();
                                           },
@@ -253,9 +270,9 @@ class _HomeScreen extends State<Home> {
                                             await Navigator.push(
                                                 context,
                                                 MaterialPageRoute (
-                                                    builder: (context) => Data  (
+                                                    builder: (context) => Information  (
                                                           form02Controller.text,
-                                                          'Sensor/ Actuator live data & pin-out',
+                                                          'Sensor/ Actuator live data & pin-out', "Sensor Data"
                                                         )));
                                             clearField();
                                           },
@@ -341,9 +358,9 @@ class _HomeScreen extends State<Home> {
                                             await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) => Data(
+                                                    builder: (context) => Information(
                                                           form03Controller.text,
-                                                          'ECU data & pin-out',
+                                                          'ECU data & pin-out', "ECU"
                                                         )));
                                             clearField();
                                           },
@@ -429,9 +446,9 @@ class _HomeScreen extends State<Home> {
                                             await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) => Data(
+                                                    builder: (context) => Information(
                                                           form04Controller.text,
-                                                          'Fuse Box location & diagram',
+                                                          'Fuse Box location & diagram', "Fuse"
                                                         )));
                                             clearField();
                                           },
@@ -517,9 +534,9 @@ class _HomeScreen extends State<Home> {
                                             await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) => Data(
+                                                    builder: (context) => Information(
                                                           form05Controller.text,
-                                                          'Wiring diagram & workshop manual',
+                                                          'Wiring diagram & workshop manual', "Wiring"
                                                         )));
                                             clearField();
                                           },
