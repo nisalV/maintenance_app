@@ -297,6 +297,11 @@ class _InformationState extends State<Information> {
                                       ),
                                       onPressed: () async {
                                         try {
+                                          /////////////
+
+                                          //PDF download
+
+                                          ////////////////////
 
 
                                         } on FirebaseException catch (e) {
