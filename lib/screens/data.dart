@@ -362,7 +362,7 @@ class _InformationState extends State<Information> {
                                             },
                                             child: Text(
                                               resVidLinks[index],
-                                              overflow: TextOverflow.ellipsis,
+                                              overflow: TextOverflow.visible,
                                               maxLines: 1,
                                               style: const TextStyle(
                                                   color: Colors.blue,
@@ -418,7 +418,7 @@ class _InformationState extends State<Information> {
                                             },
                                             child: Text(
                                               resLinks[index],
-                                              overflow: TextOverflow.ellipsis,
+                                              overflow: TextOverflow.visible,
                                               maxLines: 1,
                                               style: const TextStyle(
                                                   color: Colors.blue,
