@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'data.dart';
@@ -11,18 +12,21 @@ class Home extends StatefulWidget {
 
 class _HomeScreen extends State<Home> {
   final _formKey = GlobalKey<FormState>();
+  final _formKeyDialog = GlobalKey<FormState>();
+
   final form01Controller = TextEditingController();
   final form02Controller = TextEditingController();
   final form03Controller = TextEditingController();
   final form04Controller = TextEditingController();
   final form05Controller = TextEditingController();
+  final form06Controller = TextEditingController();
+  final form07Controller = TextEditingController();
 
   late bool form01Tap = false;
   late bool form02Tap = false;
   late bool form03Tap = false;
   late bool form04Tap = false;
   late bool form05Tap = false;
-
   late bool back = false;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -37,6 +41,8 @@ class _HomeScreen extends State<Home> {
     form03Controller.addListener(() => setState(() {}));
     form04Controller.addListener(() => setState(() {}));
     form05Controller.addListener(() => setState(() {}));
+    form06Controller.addListener(() => setState(() {}));
+    form07Controller.addListener(() => setState(() {}));
   }
 
   Future signInAnon() async {
@@ -46,7 +52,11 @@ class _HomeScreen extends State<Home> {
       return user;
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Can not connect to the Database!", style: TextStyle(color: Colors.red),textAlign: TextAlign.center,),
+        content: Text(
+          "Can not connect to the Database!",
+          style: TextStyle(color: Colors.red),
+          textAlign: TextAlign.center,
+        ),
       ));
       return null;
     }
@@ -59,6 +69,8 @@ class _HomeScreen extends State<Home> {
     form03Controller.text;
     form04Controller.text;
     form05Controller.text;
+    form06Controller.text;
+    form07Controller.text;
     form01Tap;
     form02Tap;
     form03Tap;
@@ -136,15 +148,15 @@ class _HomeScreen extends State<Home> {
                         width: 0,
                       )
                     : TextFormField(
-                        autofocus: form01Tap? true : false,
+                        autofocus: form01Tap ? true : false,
                         controller: form01Controller,
                         maxLines: 1,
                         enableSuggestions: true,
                         decoration: InputDecoration(
                             border: const OutlineInputBorder(),
                             focusedBorder: const OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.redAccent, width: 2.0),
+                              borderSide: BorderSide(
+                                  color: Colors.redAccent, width: 2.0),
                             ),
                             labelText: 'Fault code',
                             labelStyle: const TextStyle(
@@ -182,10 +194,12 @@ class _HomeScreen extends State<Home> {
                                             await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) => Information(
-                                                          form01Controller.text,
-                                                          "Fault code", "Fault Code"
-                                                        )));
+                                                    builder: (context) =>
+                                                        Information(
+                                                            form01Controller
+                                                                .text,
+                                                            "Fault code",
+                                                            "Fault Code")));
                                             clearField();
                                           },
                                           icon: const Icon(
@@ -231,8 +245,8 @@ class _HomeScreen extends State<Home> {
                         decoration: InputDecoration(
                             border: const OutlineInputBorder(),
                             focusedBorder: const OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.redAccent, width: 2.0),
+                              borderSide: BorderSide(
+                                  color: Colors.redAccent, width: 2.0),
                             ),
                             labelText: 'Sensor/ Actuator live data & pin-out',
                             labelStyle: const TextStyle(
@@ -269,11 +283,13 @@ class _HomeScreen extends State<Home> {
                                             FocusScope.of(context).unfocus();
                                             await Navigator.push(
                                                 context,
-                                                MaterialPageRoute (
-                                                    builder: (context) => Information  (
-                                                          form02Controller.text,
-                                                          'Sensor/ Actuator live data & pin-out', "Sensor Data"
-                                                        )));
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Information(
+                                                            form02Controller
+                                                                .text,
+                                                            'Sensor/ Actuator live data & pin-out',
+                                                            "Sensor Data")));
                                             clearField();
                                           },
                                           icon: const Icon(
@@ -319,8 +335,8 @@ class _HomeScreen extends State<Home> {
                         decoration: InputDecoration(
                             border: const OutlineInputBorder(),
                             focusedBorder: const OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.redAccent, width: 2.0),
+                              borderSide: BorderSide(
+                                  color: Colors.redAccent, width: 2.0),
                             ),
                             labelText: 'ECU data & pin-out',
                             labelStyle: const TextStyle(
@@ -358,10 +374,12 @@ class _HomeScreen extends State<Home> {
                                             await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) => Information(
-                                                          form03Controller.text,
-                                                          'ECU data & pin-out', "ECU"
-                                                        )));
+                                                    builder: (context) =>
+                                                        Information(
+                                                            form03Controller
+                                                                .text,
+                                                            'ECU data & pin-out',
+                                                            "ECU")));
                                             clearField();
                                           },
                                           icon: const Icon(
@@ -407,8 +425,8 @@ class _HomeScreen extends State<Home> {
                         decoration: InputDecoration(
                             border: const OutlineInputBorder(),
                             focusedBorder: const OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.redAccent, width: 2.0),
+                              borderSide: BorderSide(
+                                  color: Colors.redAccent, width: 2.0),
                             ),
                             labelText: 'Fuse Box location & diagram',
                             labelStyle: const TextStyle(
@@ -446,10 +464,12 @@ class _HomeScreen extends State<Home> {
                                             await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) => Information(
-                                                          form04Controller.text,
-                                                          'Fuse Box location & diagram', "Fuse"
-                                                        )));
+                                                    builder: (context) =>
+                                                        Information(
+                                                            form04Controller
+                                                                .text,
+                                                            'Fuse Box location & diagram',
+                                                            "Fuse")));
                                             clearField();
                                           },
                                           icon: const Icon(
@@ -495,8 +515,8 @@ class _HomeScreen extends State<Home> {
                         decoration: InputDecoration(
                             border: const OutlineInputBorder(),
                             focusedBorder: const OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.redAccent, width: 2.0),
+                              borderSide: BorderSide(
+                                  color: Colors.redAccent, width: 2.0),
                             ),
                             labelText: 'Wiring diagram & workshop manual',
                             labelStyle: const TextStyle(
@@ -534,10 +554,12 @@ class _HomeScreen extends State<Home> {
                                             await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) => Information(
-                                                          form05Controller.text,
-                                                          'Wiring diagram & workshop manual', "Wiring"
-                                                        )));
+                                                    builder: (context) =>
+                                                        Information(
+                                                            form05Controller
+                                                                .text,
+                                                            'Wiring diagram & workshop manual',
+                                                            "Wiring")));
                                             clearField();
                                           },
                                           icon: const Icon(
@@ -560,7 +582,218 @@ class _HomeScreen extends State<Home> {
                           });
                         },
                       ),
+                form01Tap || form02Tap || form03Tap || form04Tap || form05Tap
+                    ? Container(
+                        width: 0,
+                        height: 0,
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 50, horizontal: 0),
+                        child: Align(
+                          alignment: Alignment.bottomRight,
+                          child: FloatingActionButton(
+                            onPressed: () {
+                              openDialog();
+                            },
+                            elevation: 1,
+                            backgroundColor: Colors.redAccent,
+                            child: const Icon(Icons.message),
+                          ),
+                        ),
+                      )
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future openDialog() {
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+    late bool feedback = false;
+
+    return showDialog(
+      context: context,
+      builder: (context) => Scaffold(
+        key: _scaffoldKey,
+        body: AlertDialog(
+          title: Row(
+            children: [
+              const Text(
+                'Your feedback?...',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+              feedback
+                  ? const Padding(
+                      padding: EdgeInsets.fromLTRB(30, 0, 0, 0),
+                      child: CircularProgressIndicator(
+                        color: Colors.redAccent,
+                      ),
+                    )
+                  : const SizedBox(
+                      width: 0,
+                      height: 0,
+                    ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
+              child: Column(
+                children: [
+                  Form(
+                    key: _formKeyDialog,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          autofocus: true,
+                          controller: form06Controller,
+                          maxLines: 1,
+                          maxLength: 20,
+                          enableSuggestions: true,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Colors.redAccent, width: 2.0),
+                            ),
+                            labelText: 'Your name',
+                            labelStyle: TextStyle(
+                              fontSize: 15.0,
+                              color: Colors.redAccent,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.person,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.done,
+                        ),
+                        TextFormField(
+                          autofocus: true,
+                          controller: form07Controller,
+                          maxLines: null,
+                          maxLength: 100,
+                          enableSuggestions: true,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Colors.redAccent, width: 2.0),
+                            ),
+                            labelText: 'Feedback',
+                            labelStyle: TextStyle(
+                              fontSize: 15.0,
+                              color: Colors.redAccent,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.feedback_outlined,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                          keyboardType: TextInputType.multiline,
+                          textInputAction: TextInputAction.done,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 6, 20, 2),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          disabledColor: Colors.redAccent,
+                          onPressed: () {
+                            form06Controller.clear();
+                            form07Controller.clear();
+                            Navigator.of(context).pop();
+                          },
+                          icon: const Icon(Icons.close),
+                          color: Colors.redAccent,
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            setState(() {
+                              feedback = true;
+                            });
+                            if (form06Controller.text.trim().isNotEmpty &&
+                                form07Controller.text.trim().isNotEmpty) {
+                              try {
+                                var a = await FirebaseFirestore.instance
+                                    .collection("Feedbacks")
+                                    .doc(form06Controller.text.trim())
+                                    .get();
+                                if (a.exists) {
+                                  final DocumentReference documentReference =
+                                      FirebaseFirestore.instance
+                                          .collection("Feedbacks")
+                                          .doc(form06Controller.text.trim());
+                                  await documentReference.update({
+                                    "feedbacks": FieldValue.arrayUnion(
+                                        [form07Controller.text.trim()])
+                                  });
+                                } else {
+                                  final DocumentReference documentReference =
+                                      FirebaseFirestore.instance
+                                          .collection("Feedbacks")
+                                          .doc(form06Controller.text.trim());
+                                  await documentReference.set({
+                                    "feedbacks": FieldValue.arrayUnion(
+                                        [form07Controller.text.trim()])
+                                  });
+                                }
+                                setState(() {
+                                  feedback = false;
+                                });
+                                form06Controller.clear();
+                                form07Controller.clear();
+
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(
+                                  content: Text("Feedback sent, thank you...",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: Colors.green)),
+                                ));
+
+                                Navigator.of(context).pop();
+                              } catch (e) {
+                                setState(() {
+                                  feedback = false;
+                                });
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(
+                                  content: Text(
+                                    "Failed!",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ));
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(const SnackBar(
+                                content: Text(
+                                  "All the fields required!",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ));
+                            }
+                          },
+                          icon: const Icon(Icons.send),
+                          color: Colors.redAccent,
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
